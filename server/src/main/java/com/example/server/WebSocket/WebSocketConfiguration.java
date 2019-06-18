@@ -21,7 +21,7 @@ import org.springframework.web.socket.config.annotation.EnableWebSocket;
 public class WebSocketConfiguration implements WebSocketConfigurer {
 
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        registry.addHandler(new SocketHandler(), "/name")
+        registry.addHandler(new SocketHandler(), "/")
                 .setAllowedOrigins("*")
                 // initial Request/Handshake interceptor
                 .addInterceptors(new HttpSessionHandshakeInterceptor() {
@@ -47,12 +47,12 @@ public class WebSocketConfiguration implements WebSocketConfigurer {
         
     }
 
-    @Bean
-    public ServletServerContainerFactoryBean createWebSocketContainer() {
-        ServletServerContainerFactoryBean container = new ServletServerContainerFactoryBean();
-        container.setMaxTextMessageBufferSize(8192);
-        container.setMaxBinaryMessageBufferSize(8192);
-        return container;
-    }
+    // @Bean
+    // public ServletServerContainerFactoryBean createWebSocketContainer() {
+    //     ServletServerContainerFactoryBean container = new ServletServerContainerFactoryBean();
+    //     container.setMaxTextMessageBufferSize(8192);
+    //     container.setMaxBinaryMessageBufferSize(8192);
+    //     return container;
+    // }
 
 }

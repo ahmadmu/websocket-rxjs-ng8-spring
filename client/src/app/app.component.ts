@@ -1,51 +1,76 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
+import { Observable } from 'rxjs';
 
+interface Message {
+  name: string; message: string; type: string;
+}
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
-export class AppComponent {
-  title = 'app';
+export class AppComponent implements OnInit {
 
-  greetings: string[] = [];
-  showConversation = false;
-  ws: WebSocketSubject<any>;
+  messages: Message[] = [];
   name: string;
-  disabled: boolean;
+  message: string;
+  numberOfMessages = 0;
+
+  ws: WebSocketSubject<any>;
+  message$: Observable<Message>;
+  messageNumber$: Observable<number>;
+
+  connected: boolean;
 
   constructor() { }
 
+  ngOnInit() {
+    this.connect();
+  }
+
   connect() {
-    this.ws = webSocket('ws://localhost:8080/name');
-    this.ws.subscribe(
-      value => console.log(value),
-      error => console.error(error),
-      () => this.setConnected(false)
+    this.ws = webSocket('ws://localhost:8080');
+
+    this.message$ = this.ws.multiplex(
+      () => ({subscribe: 'message'}),
+      () => ({unsubscribe: 'message'}),
+      message => message.type === 'message'
     );
+
+    this.messageNumber$ = this.ws.multiplex(
+      () => ({ subscribe: 'msgno' }),
+      () => ({ unsubscribe: 'msgno' }),
+      message => message.type === 'msgno'
+    );
+
+    this.message$.subscribe(
+      value => this.messages.push(value),
+      error => this.disconnect(error),
+      () => this.disconnect()
+    )
+    this.messageNumber$.subscribe(
+      value => this.numberOfMessages = value,
+      error => this.disconnect(error),
+      () => this.disconnect()
+    )
+
     this.setConnected(true);
   }
 
-  disconnect() {
-    this.ws.complete();
+  disconnect(err?) {
+    if (err) { console.error(err); }
     this.setConnected(false);
     console.log('Disconnected');
   }
 
-  sendName() {
-    this.ws.next({ name: this.name});
-    this.showGreeting(this.name);
-  }
-
-  showGreeting(message) {
-    this.showConversation = true;
-    this.greetings.push(message);
+  sendMessage() {
+    this.ws.next({ name: this.name, message: this.message, type: 'message' });
+    this.message = '';
   }
 
   setConnected(connected) {
-    this.disabled = connected;
-    this.showConversation = connected;
-    this.greetings = [];
+    this.connected = connected;
+    this.messages = [];
   }
 }

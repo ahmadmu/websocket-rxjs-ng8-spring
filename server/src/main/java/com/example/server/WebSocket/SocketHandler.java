@@ -1,14 +1,12 @@
 package com.example.server.websocket;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import com.google.gson.Gson;
 
-import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.BinaryMessage;
 import org.springframework.web.socket.CloseStatus;
@@ -34,7 +32,7 @@ public class SocketHandler extends TextWebSocketHandler {
         // }
 
         // emit message
-        session.sendMessage(new TextMessage(new Gson().toJson(value.get("name"))));
+        session.sendMessage(new TextMessage(message.getPayload()));
     }
 
     @Override

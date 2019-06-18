@@ -1,42 +1,47 @@
-<div id="main-content" class="container">
+<div id="main-content" class="container mt-2">
   <div class="row">
-    <div class="col-md-6">
+    <div class="col-md-12">
       <form class="form-inline">
         <div class="form-group">
-          <label for="connect">WebSocket connection:</label>
-          <button id="connect" class="btn btn-default" type="button" [disabled]="disabled"
-            (click)="connect()">Connect</button>
-          <button id="disconnect" class="btn btn-default" type="button" [disabled]="!disabled"
-            (click)="disconnect()">Disconnect
-          </button>
+          <span>WebSocket Status:
+            <span class="{{connected ? 'text-success' : 'text-danger'}}">
+              <strong>{{ connected ? 'Connected' : 'Disconnected'}}</strong>
+            </span>
+          </span>
         </div>
       </form>
+      <hr>
     </div>
-    <div class="col-md-6">
-      <form class="form-inline" name="test-form">
+    <div class="col-md-12 my-2">
+      <form class="" name="test-form">
         <div class="form-group">
-          <label for="name">What is your name?</label>
-          <input type="text" id="name" name="name" class="form-control" placeholder="Your name here..."
-            [(ngModel)]="name">
+          <label for="name">Name:</label>
+          <input type="text" id="name" name="name" class="form-control ml-2" placeholder="Your name here..." [(ngModel)]="name">
         </div>
-        <button id="send" class="btn btn-default" type="button" (click)="sendName()">Send</button>
+        <div class="form-group">
+          <label for="message">Message:</label>
+          <textarea type="text" id="name" name="message" class="form-control ml-2" placeholder="Your Message here..." [(ngModel)]="message"></textarea>
+        </div>
+        <button id="send" class="btn btn-primary" type="button" (click)="sendMessage()">Send</button>
       </form>
+      <hr>
     </div>
   </div>
   <div class="row">
-    <div class="col-md-12" *ngIf="showConversation">
-      <table id="conversation" class="table table-striped">
-        <thead>
-          <tr>
-            <th>Greetings</th>
-          </tr>
-        </thead>
-        <tbody *ngFor="let greeting of greetings">
-          <tr>
-            <td> {{greeting}}</td>
-          </tr>
-        </tbody>
-      </table>
+    <div class="col-md-12" *ngIf="connected">
+        <div class="col-12">
+          <strong>Chat: </strong>(Number of messages: {{numberOfMessages}})
+        </div>
+        <div class="bg-light col-12 p-2" *ngIf="messages.length > 0">
+          <div class="row m-0" *ngFor="let m of messages">
+            <div class="col-3">
+              Name: {{m.name}}
+            </div>
+            <div class="col-9">
+              Message: {{m.message}}
+            </div>
+          </div>
+        </div>
     </div>
   </div>
 
