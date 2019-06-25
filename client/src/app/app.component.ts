@@ -5,6 +5,11 @@ import { Observable } from 'rxjs';
 interface Message {
   name: string; message: string; type: string;
 }
+
+interface MessageCount {
+  messagecount: number; type: string;
+}
+
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -19,7 +24,7 @@ export class AppComponent implements OnInit {
 
   ws: WebSocketSubject<any>;
   message$: Observable<Message>;
-  messageNumber$: Observable<number>;
+  messageNumber$: Observable<MessageCount>;
 
   connected: boolean;
 
@@ -30,8 +35,10 @@ export class AppComponent implements OnInit {
   }
 
   connect() {
-    this.ws = webSocket('ws://localhost:8080');
+    // use wss:// instead of ws:// for a secure connection, e.g. in production
+    this.ws = webSocket('ws://localhost:8080'); // returns a WebSocketSubject
 
+    //  split the subject into 2 observables, depending on object.type
     this.message$ = this.ws.multiplex(
       () => ({subscribe: 'message'}),
       () => ({unsubscribe: 'message'}),
@@ -39,21 +46,24 @@ export class AppComponent implements OnInit {
     );
 
     this.messageNumber$ = this.ws.multiplex(
-      () => ({ subscribe: 'msgno' }),
-      () => ({ unsubscribe: 'msgno' }),
-      message => message.type === 'msgno'
+      () => ({ subscribe: 'messageNumber' }),
+      () => ({ unsubscribe: 'messageNumber' }),
+      message => message.type === 'messageNumber'
     );
 
+    // subscribe to messages sent from the server
     this.message$.subscribe(
       value => this.messages.push(value),
       error => this.disconnect(error),
       () => this.disconnect()
-    )
+    );
+
+    // get the number of the messages from the server
     this.messageNumber$.subscribe(
-      value => this.numberOfMessages = value,
+      value => this.numberOfMessages = value.messagecount,
       error => this.disconnect(error),
       () => this.disconnect()
-    )
+    );
 
     this.setConnected(true);
   }

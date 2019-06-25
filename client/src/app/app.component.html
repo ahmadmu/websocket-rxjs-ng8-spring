@@ -8,6 +8,7 @@
               <strong>{{ connected ? 'Connected' : 'Disconnected'}}</strong>
             </span>
           </span>
+          <button class="btn btn-sm bg-light ml-2 float right" (click)="connect()" *ngIf="!connected">reconnect</button>
         </div>
       </form>
       <hr>
